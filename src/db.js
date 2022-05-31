@@ -1,15 +1,8 @@
-const mongoose =  require('mongoose');
-const {Game} = require("./models/game.model");
+const mongoose = require('mongoose');
 
-const main = async () => {
-    try{
-        await mongoose.connect('mongodb+srv://admin:admin@ludo-game.yw3mx.mongodb.net/ludo-game-react?retryWrites=true&w=majority',  {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        })
-    }catch(e){
-        console.log(e)
-    }
-}
+mongoose.connect('mongodb+srv://admin:admin@ludo-game.yw3mx.mongodb.net/ludo-game-react?retryWrites=true&w=majority', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => console.log('Connected to Mongoose')).catch((e) => console.log(e));
 
-
+module.exports = mongoose;
