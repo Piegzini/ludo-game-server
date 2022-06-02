@@ -43,7 +43,7 @@ class GameController {
   }
 
   async getPlayers(_gameId) {
-    const { getPlayer } = new PlayerController();
+    const playerController = new PlayerController();
     let game = {};
     try {
       game = await Game.findById(_gameId);
@@ -52,7 +52,7 @@ class GameController {
     }
 
     const { players } = game;
-    return await Promise.all(players.map(async (id) => await getPlayer(id)));
+    return await Promise.all(players.map(async (id) => await playerController.get(id)));
   }
 
   async addPlayer(_gameId, _playerId) {

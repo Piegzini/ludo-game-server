@@ -11,11 +11,20 @@ class PlayerController {
     return player;
   }
 
-  async getPlayer(_id) {
+  async get(_id) {
     try {
       return await Player.findById(_id);
     } catch (e) {
       console.error(e);
+    }
+  }
+
+  async update(_id, values) {
+    console.log(_id, values);
+    try {
+      await Player.findByIdAndUpdate(_id, { ...values });
+    } catch (e) {
+      console.log(e);
     }
   }
 }

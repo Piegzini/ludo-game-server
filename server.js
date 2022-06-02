@@ -17,6 +17,7 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   socket.on('CREATE_PLAYER', async ({ nick }) => {
     const gameController = new GameController();
+
     const freeGame = await gameController.findFreeGame();
     const color = await getRandomColorFromGame(freeGame);
 
@@ -32,12 +33,22 @@ io.on('connection', (socket) => {
     const players = await gameController.getPlayers(freeGame._id);
     socket.emit('JOIN_LOBBY', { user, players });
 
+    socket.playerId = player._id;
+    socket.gameId = freeGame._id;
+
     const roomId = `${freeGame._id.valueOf()}`;
     io.to(roomId).emit('UPDATE_LOBBY', players);
   });
 
-  socket.on('CHANGE_STATUS', async () => {
+  socket.on('CHANGE_STATUS', async (values) => {
+    const gameController = new GameController();
 
+    const playerController = new PlayerController();
+    await playerController.update(socket.playerId, values);
+
+    const players = await gameController.getPlayers(socket.gameId);
+    const roomId = `${socket.gameId.valueOf()}`;
+    io.to(roomId).emit('UPDATE_LOBBY', players);
   });
 });
 
