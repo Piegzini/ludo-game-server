@@ -2,7 +2,6 @@ const { Player } = require('../models/player.model');
 
 class PlayerController {
   async create(props) {
-    console.log(props);
     const player = new Player({ ...props });
     try {
       await player.save();
@@ -10,6 +9,14 @@ class PlayerController {
       console.error(e);
     }
     return player;
+  }
+
+  async getPlayer(_id) {
+    try {
+      return await Player.findById(_id);
+    } catch (e) {
+      console.error(e);
+    }
   }
 }
 

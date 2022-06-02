@@ -16,6 +16,12 @@
     ],
     "no-restricted-syntax": [
       "off"
+    ],
+    "no-underscore-dangle": [
+      "off"
+    ],
+    "no-return-await": [
+      "off"
     ]
   }
 }

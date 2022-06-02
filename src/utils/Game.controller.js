@@ -1,4 +1,6 @@
+const { get } = require('mongoose');
 const { Game } = require('../models/game.model');
+const PlayerController = require('./Player.controller');
 
 class GameController {
   constructor() {
@@ -38,6 +40,19 @@ class GameController {
     }
 
     return this.createRoom();
+  }
+
+  async getPlayers(_gameId) {
+    const { getPlayer } = new PlayerController();
+    let game = {};
+    try {
+      game = await Game.findById(_gameId);
+    } catch (e) {
+      console.log(e);
+    }
+
+    const { players } = game;
+    return await Promise.all(players.map(async (id) => await getPlayer(id)));
   }
 
   async addPlayer(_gameId, _playerId) {
