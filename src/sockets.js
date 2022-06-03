@@ -13,6 +13,6 @@ const io = new Server(server, {
   },
 });
 
-io.on('connection', handleConnection);
+io.on('connection', (socket) => handleConnection(socket, io));
 
 module.exports = { server, io };
