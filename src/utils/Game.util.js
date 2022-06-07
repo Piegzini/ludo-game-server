@@ -46,10 +46,8 @@ const findGame = async (_gameId) => {
   return game;
 };
 
-const getCurrentGamePlayers = async (_gameId) => {
+const getCurrentGamePlayers = async ({ players }) => {
   let playersDetails;
-  const { players } = await findGame(_gameId);
-
   try {
     playersDetails = await Promise.all(players.map(async (id) => await getPlayer(id)));
   } catch (e) {
@@ -58,18 +56,16 @@ const getCurrentGamePlayers = async (_gameId) => {
   return playersDetails;
 };
 
-const addPlayerToGame = async (_gameId, _playerId) => {
+const addPlayerToGame = async (game, _playerId) => {
   try {
-    const game = await Game.findOne({ _id: _gameId });
     await game.updateOne({ $push: { players: _playerId } });
   } catch (error) {
     console.log(error);
   }
 };
 
-const startGame = async (_gameId) => {
-  const game = await findGame(_gameId);
-
+const startGame = async (_game) => {
+  const game = _game;
   if (game.isDuring) return;
 
   game.isDuring = true;
@@ -81,8 +77,8 @@ const startGame = async (_gameId) => {
   }
 };
 
-const checkStartGame = async (_gameId) => {
-  const players = await getCurrentGamePlayers(_gameId);
+const checkStartGame = async (_game) => {
+  const players = await getCurrentGamePlayers(_game);
 
   const readyPlayers = players.filter(({ isReady }) => isReady);
 
@@ -90,12 +86,12 @@ const checkStartGame = async (_gameId) => {
   const allPlayersReady = readyPlayers.length === players.length;
 
   if (areThereMoreThanTwoPlayers && allPlayersReady) {
-    await startGame(_gameId);
+    await startGame(_game);
     return true;
   }
   return false;
 };
 
 module.exports = {
-  createRoom, findFreeGame, getCurrentGamePlayers, addPlayerToGame, checkStartGame,
+  createRoom, findFreeGame, getCurrentGamePlayers, addPlayerToGame, checkStartGame, findGame,
 };
