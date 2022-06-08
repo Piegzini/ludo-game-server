@@ -15,7 +15,12 @@ const PlayerSchema = new Schema({
   },
   pawns: {
     type: Array,
-    default: [],
+    default: [
+      { id: 'first', position: 'base' },
+      { id: 'second', position: 'base' },
+      { id: 'third', position: 'base' },
+      { id: 'fourth', position: 'base' },
+    ],
   },
 });
 

@@ -18,7 +18,7 @@ const gameSchema = new Schema({
   },
   availableColors: {
     type: Array,
-    default: ['red', 'yellow', 'blue', 'green'],
+    default: ['red', 'gold', 'royalBlue', 'green'],
   },
 });
 

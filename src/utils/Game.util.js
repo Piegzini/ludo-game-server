@@ -82,9 +82,9 @@ const checkStartGame = async (_game) => {
 
   const readyPlayers = players.filter(({ isReady }) => isReady);
 
-  const areThereMoreThanTwoPlayers = players.length >= 2;
-  const allPlayersReady = readyPlayers.length === players.length;
-
+  const areThereMoreThanTwoPlayers = players.length >= 1;
+  // const allPlayersReady = readyPlayers.length === players.length;
+  const allPlayersReady = true;
   if (areThereMoreThanTwoPlayers && allPlayersReady) {
     await startGame(_game);
     return true;

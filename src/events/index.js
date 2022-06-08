@@ -6,6 +6,7 @@ const {
 } = require('../utils/Game.util');
 const { getRandomColorFromGame, getRoomId } = require('../utils/helpers');
 const { createPlayer, updatePlayer } = require('../utils/Player.util');
+const DuringGame = require('../utils/DuringGame');
 
 const handleConnection = (socket, io) => {
   socket.on('CREATE_PLAYER', async ({ nick }) => {
@@ -42,7 +43,42 @@ const handleConnection = (socket, io) => {
 
     const roomId = getRoomId(socket.gameId);
 
-    isGameHasStarted ? io.to(roomId).emit('START_GAME') : io.to(roomId).emit('UPDATE_LOBBY', players);
+    if (isGameHasStarted) {
+      const duringGame = new DuringGame(game, players);
+      io.to(roomId).emit('START_GAME', duringGame);
+    } else {
+      io.to(roomId).emit('UPDATE_LOBBY', players);
+    }
+  });
+
+  socket.on('ROLL_NUMBER', () => {
+    const duringGame = DuringGame.all.find((game) => game.id.valueOf() === socket.gameId.valueOf());
+    if (socket.playerId.valueOf() !== duringGame.playerWithMove.valueOf()) return;
+
+    duringGame.rollNumber();
+    const availableMoves = duringGame.getAvailableMoves();
+    const roomId = getRoomId(socket.gameId);
+
+    socket.to(roomId).emit('UPDATE_GAME', duringGame);
+    // only pleyer whos rolled numbe have available moves
+    const gameWithAvailableMoves = { ...duringGame, availableMoves };
+    io.to(socket.id).emit('UPDATE_GAME', gameWithAvailableMoves);
+  });
+
+  socket.on('MOVE', ({ pawnId }) => {
+    const duringGame = DuringGame.all.find((game) => game.id.valueOf() === socket.gameId.valueOf());
+    if (socket.playerId.valueOf() !== duringGame.playerWithMove.valueOf()) return;
+
+    const player = duringGame.players.find(({ _id }) => _id.valueOf() === socket.playerId.valueOf());
+    const availableMoves = duringGame.getAvailableMoves();
+
+    const choseMove = availableMoves.find((availableMove) => availableMove?.id === pawnId);
+    console.log(choseMove);
+    const pawn = player.pawns.find(({ id }) => id === pawnId);
+    pawn.position = choseMove.position;
+
+    const roomId = getRoomId(socket.gameId);
+    io.to(roomId).emit('UPDATE_GAME', duringGame);
   });
 };
 

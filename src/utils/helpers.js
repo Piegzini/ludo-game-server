@@ -13,4 +13,20 @@ const getRandomColorFromGame = async (game) => {
 
 const getRoomId = (_id) => `${_id.valueOf()}`;
 
-module.exports = { getRandomColorFromGame, getRoomId };
+const getStartedPosition = ({ color }) => {
+  let positionNumber = 0;
+  switch (color) {
+    case 'green':
+      positionNumber = 13;
+      break;
+    case 'gold':
+      positionNumber = 26;
+      break;
+    case 'royalBlue':
+      positionNumber = 39;
+      break;
+  }
+  return positionNumber;
+};
+
+module.exports = { getRandomColorFromGame, getRoomId, getStartedPosition };
