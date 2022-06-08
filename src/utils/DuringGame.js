@@ -30,7 +30,7 @@ class DuringGame {
   setNextPlayer() {
     const indexOfCurrentTurnPlayer = this.players.findIndex(({ _id }) => _id.valueOf() === this.playerWithMove.valueOf());
     const nextPlayerIndex = indexOfCurrentTurnPlayer + 1 >= this.players.length ? 0 : indexOfCurrentTurnPlayer + 1;
-    this.playerWithMove = this.players[nextPlayerIndex];
+    this.playerWithMove = this.players[nextPlayerIndex]._id;
   }
 
   rollNumber() {
@@ -43,20 +43,46 @@ class DuringGame {
     const playerWithMove = this.players.find((player) => player._id.valueOf() === this.playerWithMove.valueOf());
     const startedPosition = getStartedPosition(playerWithMove);
 
-    const availableMoves = playerWithMove.pawns.map(({ id, position }) => {
+    let availableMoves = playerWithMove.pawns.map(({ id, position }) => {
       if (position === 'base') {
         const canBeAddedToBoard = this.rolledNumber === 1 || this.rolledNumber === 6;
         const pawn = { id, position: positions[startedPosition] };
         return canBeAddedToBoard && pawn;
       }
-      const pawn = { id, position: positions[position.id + this.rolledNumber] };
-      return pawn;
+
+      const nextPositionId = position.id + this.rolledNumber >= positions.length
+        ? (position.id + this.rolledNumber) % positions.length
+        : position.id + this.rolledNumber;
+
+      // this.checkBeating(nextPositionId);
+
+      return { id, position: positions[nextPositionId] };
 
       // const positionId = position.id;
       // return { id, position: positions[positionId + this.rolledNumber] };
     });
 
+    availableMoves = availableMoves.filter((move) => move !== false);
+
+    if (availableMoves.length === 0) this.setNextPlayer();
+
     return availableMoves;
+  }
+
+  checkBeating(positionId) {
+    const othersPlayers = this.players.filter((player) => player._id.valueOf() !== this.playerWithMove.valueOf());
+
+    othersPlayers.forEach((otherPlayer) => {
+      const pawnOnTheSamePosition = otherPlayer.pawns.filter((pawn) => {
+        if (pawn.position.id && pawn.position.id === positionId) return pawn;
+      });
+
+      if (pawnOnTheSamePosition.length > 0) {
+        pawnOnTheSamePosition.forEach((pawn) => {
+          pawn.position = 'base';
+        });
+      }
+    });
   }
 }
 

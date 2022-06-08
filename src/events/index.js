@@ -73,10 +73,11 @@ const handleConnection = (socket, io) => {
     const availableMoves = duringGame.getAvailableMoves();
 
     const choseMove = availableMoves.find((availableMove) => availableMove?.id === pawnId);
-    console.log(choseMove);
     const pawn = player.pawns.find(({ id }) => id === pawnId);
     pawn.position = choseMove.position;
 
+    duringGame.checkBeating(choseMove.position.id);
+    duringGame.setNextPlayer();
     const roomId = getRoomId(socket.gameId);
     io.to(roomId).emit('UPDATE_GAME', duringGame);
   });
