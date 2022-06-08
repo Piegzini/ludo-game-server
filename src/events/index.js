@@ -69,15 +69,8 @@ const handleConnection = (socket, io) => {
     const duringGame = DuringGame.all.find((game) => game.id.valueOf() === socket.gameId.valueOf());
     if (socket.playerId.valueOf() !== duringGame.playerWithMove.valueOf()) return;
 
-    const player = duringGame.players.find(({ _id }) => _id.valueOf() === socket.playerId.valueOf());
-    const availableMoves = duringGame.getAvailableMoves();
+    duringGame.move(socket.playerId, pawnId);
 
-    const choseMove = availableMoves.find((availableMove) => availableMove?.id === pawnId);
-    const pawn = player.pawns.find(({ id }) => id === pawnId);
-    pawn.position = choseMove.position;
-
-    duringGame.checkBeating(choseMove.position.id);
-    duringGame.setNextPlayer();
     const roomId = getRoomId(socket.gameId);
     io.to(roomId).emit('UPDATE_GAME', duringGame);
   });

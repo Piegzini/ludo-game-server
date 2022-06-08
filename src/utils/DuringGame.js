@@ -13,6 +13,7 @@ class DuringGame {
     this.rolledNumber = null;
     this.turnTimeInterval = {};
     this.playerWithMove = this.players[0]._id;
+    this.hasPlayerRolledNumber = false;
 
     DuringGame.all.push(this);
   }
@@ -31,12 +32,16 @@ class DuringGame {
     const indexOfCurrentTurnPlayer = this.players.findIndex(({ _id }) => _id.valueOf() === this.playerWithMove.valueOf());
     const nextPlayerIndex = indexOfCurrentTurnPlayer + 1 >= this.players.length ? 0 : indexOfCurrentTurnPlayer + 1;
     this.playerWithMove = this.players[nextPlayerIndex]._id;
+    this.hasPlayerRolledNumber = false;
   }
 
   rollNumber() {
     const min = 1;
     const max = 7;
+    if (this.hasPlayerRolledNumber) return;
+
     this.rolledNumber = Math.floor(Math.random() * (max - min)) + min;
+    this.hasPlayerRolledNumber = true;
   }
 
   getAvailableMoves() {
@@ -54,12 +59,7 @@ class DuringGame {
         ? (position.id + this.rolledNumber) % positions.length
         : position.id + this.rolledNumber;
 
-      // this.checkBeating(nextPositionId);
-
       return { id, position: positions[nextPositionId] };
-
-      // const positionId = position.id;
-      // return { id, position: positions[positionId + this.rolledNumber] };
     });
 
     availableMoves = availableMoves.filter((move) => move !== false);
@@ -83,6 +83,18 @@ class DuringGame {
         });
       }
     });
+  }
+
+  move(playerId, pawnId) {
+    const player = this.players.find(({ _id }) => _id.valueOf() === playerId.valueOf());
+    const availableMoves = this.getAvailableMoves();
+
+    const choseMove = availableMoves.find((availableMove) => availableMove?.id === pawnId);
+    const pawn = player.pawns.find(({ id }) => id === pawnId);
+    pawn.position = choseMove.position;
+
+    this.checkBeating(choseMove.position.id);
+    this.setNextPlayer();
   }
 }
 
