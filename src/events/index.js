@@ -44,7 +44,8 @@ const handleConnection = (socket, io) => {
     const roomId = getRoomId(socket.gameId);
 
     if (isGameHasStarted) {
-      const duringGame = new DuringGame(game, players);
+      const emitUpdate = (_game) => io.to(roomId).emit('UPDATE_GAME', _game);
+      const duringGame = new DuringGame(game, players, emitUpdate);
       io.to(roomId).emit('START_GAME', duringGame);
     } else {
       io.to(roomId).emit('UPDATE_LOBBY', players);
@@ -60,7 +61,7 @@ const handleConnection = (socket, io) => {
     const roomId = getRoomId(socket.gameId);
 
     socket.to(roomId).emit('UPDATE_GAME', duringGame);
-    // only pleyer whos rolled numbe have available moves
+    // only pleyer whos rolled number have available moves
     const gameWithAvailableMoves = { ...duringGame, availableMoves };
     io.to(socket.id).emit('UPDATE_GAME', gameWithAvailableMoves);
   });

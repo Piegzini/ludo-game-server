@@ -4,28 +4,27 @@ const positions = require('../positions');
 class DuringGame {
   static all = [];
 
-  static turnTime = 40;
+  static turnTime = 20;
 
-  constructor({ _id }, _players) {
+  #turnTimeOut;
+
+  constructor({ _id }, _players, _emitUpdate) {
     this.id = _id;
     this.players = _players;
-    this.turnTime = DuringGame.turnTime;
     this.rolledNumber = null;
-    this.turnTimeInterval = {};
     this.playerWithMove = this.players[0]._id;
     this.hasPlayerRolledNumber = false;
-
+    this.emitUpdate = _emitUpdate;
     DuringGame.all.push(this);
   }
 
-  elapsedTurnTime() {
-    if (this.turnTime <= 0) {
+  startTurnTime() {
+    clearTimeout(this.#turnTimeOut);
+
+    this.#turnTimeOut = setTimeout(() => {
       this.setNextPlayer();
-      this.turnTime = DuringGame.turnTime;
-    } else {
-      this.turnTime -= 1;
-    }
-    console.log(`Turn time: ${this.turnTime}`);
+      this.emitUpdate(this);
+    }, DuringGame.turnTime * 1000);
   }
 
   setNextPlayer() {
@@ -33,6 +32,8 @@ class DuringGame {
     const nextPlayerIndex = indexOfCurrentTurnPlayer + 1 >= this.players.length ? 0 : indexOfCurrentTurnPlayer + 1;
     this.playerWithMove = this.players[nextPlayerIndex]._id;
     this.hasPlayerRolledNumber = false;
+
+    this.startTurnTime();
   }
 
   rollNumber() {
