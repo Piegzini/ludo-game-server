@@ -4,7 +4,7 @@ const positions = require('../positions');
 class DuringGame {
   static all = [];
 
-  static turnTime = 20;
+  static turnTime = 10;
 
   #turnTimeOut;
 
@@ -14,8 +14,12 @@ class DuringGame {
     this.rolledNumber = null;
     this.playerWithMove = this.players[0]._id;
     this.hasPlayerRolledNumber = false;
+    this.turnTime = DuringGame.turnTime;
+    this.newTurn = true;
     this.emitUpdate = _emitUpdate;
+
     DuringGame.all.push(this);
+    this.startTurnTime();
   }
 
   startTurnTime() {
@@ -32,7 +36,7 @@ class DuringGame {
     const nextPlayerIndex = indexOfCurrentTurnPlayer + 1 >= this.players.length ? 0 : indexOfCurrentTurnPlayer + 1;
     this.playerWithMove = this.players[nextPlayerIndex]._id;
     this.hasPlayerRolledNumber = false;
-
+    this.newTurn = true;
     this.startTurnTime();
   }
 
@@ -43,9 +47,12 @@ class DuringGame {
 
     this.rolledNumber = Math.floor(Math.random() * (max - min)) + min;
     this.hasPlayerRolledNumber = true;
+    this.newTurn = false;
   }
 
   getAvailableMoves() {
+    this.newTurn = false;
+
     const playerWithMove = this.players.find((player) => player._id.valueOf() === this.playerWithMove.valueOf());
     const startedPosition = getStartedPosition(playerWithMove);
 
@@ -65,6 +72,7 @@ class DuringGame {
 
     availableMoves = availableMoves.filter((move) => move !== false);
 
+    console.log(availableMoves);
     if (availableMoves.length === 0) this.setNextPlayer();
 
     return availableMoves;
@@ -87,6 +95,7 @@ class DuringGame {
   }
 
   move(playerId, pawnId) {
+    this.newTurn = false;
     const player = this.players.find(({ _id }) => _id.valueOf() === playerId.valueOf());
     const availableMoves = this.getAvailableMoves();
 
