@@ -53,4 +53,70 @@ const positions = [
   { id: 51, top: 0, left: 350 },
 ];
 
-module.exports = positions;
+const finishing = [
+
+  {
+    id: 52, top: 50, left: 350, color: 'red',
+  },
+  {
+    id: 53, top: 100, left: 350, color: 'red',
+  },
+  {
+    id: 54, top: 150, left: 350, color: 'red',
+  },
+  {
+    id: 55, top: 200, left: 350, color: 'red',
+  },
+  {
+    id: 56, top: 250, left: 350, color: 'red',
+  },
+  {
+    id: 52, top: 350, left: 650, color: 'green',
+  },
+  {
+    id: 53, top: 350, left: 600, color: 'green',
+  },
+  {
+    id: 54, top: 350, left: 550, color: 'green',
+  },
+  {
+    id: 55, top: 350, left: 500, color: 'green',
+  },
+  {
+    id: 56, top: 350, left: 450, color: 'green',
+  },
+
+  {
+    id: 52, top: 350, left: 50, color: 'royalBlue',
+  },
+  {
+    id: 53, top: 350, left: 100, color: 'royalBlue',
+  },
+  {
+    id: 54, top: 350, left: 150, color: 'royalBlue',
+  },
+  {
+    id: 55, top: 350, left: 200, color: 'royalBlue',
+  },
+  {
+    id: 56, top: 350, left: 250, color: 'royalBlue',
+  },
+  {
+    id: 52, top: 650, left: 300, color: 'gold',
+  },
+  {
+    id: 53, top: 600, left: 300, color: 'gold',
+  },
+  {
+    id: 54, top: 550, left: 300, color: 'gold',
+  },
+  {
+    id: 55, top: 500, left: 300, color: 'gold',
+  },
+  {
+    id: 56, top: 450, left: 300, color: 'gold',
+  },
+
+];
+
+module.exports = { positions, finishing };

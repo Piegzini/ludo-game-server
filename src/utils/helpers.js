@@ -1,3 +1,5 @@
+const { finishing, positions } = require('../positions');
+
 const getRandomColorFromGame = async (game) => {
   const { availableColors } = game;
   const randomNumber = Math.floor(Math.random() * availableColors.length);
@@ -13,7 +15,7 @@ const getRandomColorFromGame = async (game) => {
 
 const getRoomId = (_id) => `${_id.valueOf()}`;
 
-const getStartedPosition = ({ color }) => {
+const getStartedPosition = (color) => {
   let positionNumber = 0;
   switch (color) {
     case 'green':
@@ -29,4 +31,12 @@ const getStartedPosition = ({ color }) => {
   return positionNumber;
 };
 
-module.exports = { getRandomColorFromGame, getRoomId, getStartedPosition };
+const getPlayerAllPositions = (color) => {
+  const startedPositionNumber = getStartedPosition(color);
+  const finishPositions = finishing.filter((position) => position.color === color);
+  return ([...positions.slice(startedPositionNumber, positions.length), ...positions.slice(0, startedPositionNumber), ...finishPositions]);
+};
+
+module.exports = {
+  getRandomColorFromGame, getRoomId, getStartedPosition, getPlayerAllPositions,
+};

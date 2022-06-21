@@ -1,5 +1,5 @@
-const { getStartedPosition } = require('./helpers');
-const positions = require('../positions');
+const { getStartedPosition, getPlayerAllPositions } = require('./helpers');
+const { positions, finishing } = require('../positions');
 
 class DuringGame {
   static all = [];
@@ -54,27 +54,30 @@ class DuringGame {
     this.newTurn = false;
 
     const playerWithMove = this.players.find((player) => player._id.valueOf() === this.playerWithMove.valueOf());
-    const startedPosition = getStartedPosition(playerWithMove);
+    const playerAllPositions = getPlayerAllPositions(playerWithMove.color);
 
     let availableMoves = playerWithMove.pawns.map(({ id, position }) => {
       if (position === 'base') {
         const canBeAddedToBoard = this.rolledNumber === 1 || this.rolledNumber === 6;
-        const pawn = { id, position: positions[startedPosition] };
+        const pawn = { id, position: playerAllPositions[0] };
         return canBeAddedToBoard && pawn;
       }
 
-      const nextPositionId = position.id + this.rolledNumber >= positions.length
-        ? (position.id + this.rolledNumber) % positions.length
-        : position.id + this.rolledNumber;
+      const indexOfCurrentPosition = playerAllPositions.findIndex(({ id }) => id === position.id);
+      const nextPositionIndex = indexOfCurrentPosition + this.rolledNumber;
 
-      return { id, position: positions[nextPositionId] };
+      if (nextPositionIndex >= playerAllPositions.length) return false;
+      const isOtherPawnOnEndingPool = this.checkOtherPawnsInEndingPositions(playerWithMove, nextPositionIndex);
+
+      if (isOtherPawnOnEndingPool) return false;
+
+      return { id, position: playerAllPositions[nextPositionIndex] };
     });
 
+    // cleaner
     availableMoves = availableMoves.filter((move) => move !== false);
 
-    console.log(availableMoves);
     if (availableMoves.length === 0) this.setNextPlayer();
-
     return availableMoves;
   }
 
@@ -92,6 +95,14 @@ class DuringGame {
         });
       }
     });
+  }
+
+  checkOtherPawnsInEndingPositions({ pawns }, nextPositionIndex) {
+    if (nextPositionIndex >= 51) {
+      const onTheSamePositions = pawns.filter(({ position }) => position.id === nextPositionIndex);
+      return onTheSamePositions.length > 0;
+    }
+    return false;
   }
 
   move(playerId, pawnId) {
