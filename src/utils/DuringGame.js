@@ -67,8 +67,9 @@ class DuringGame {
       const nextPositionIndex = indexOfCurrentPosition + this.rolledNumber;
 
       if (nextPositionIndex >= playerAllPositions.length) return false;
-      const isOtherPawnOnEndingPool = this.checkOtherPawnsInEndingPositions(playerWithMove, nextPositionIndex);
 
+      // moving in ending positions
+      const isOtherPawnOnEndingPool = this.checkOtherPawnsInEndingPositions(playerWithMove, nextPositionIndex);
       if (isOtherPawnOnEndingPool) return false;
 
       return { id, position: playerAllPositions[nextPositionIndex] };
@@ -97,6 +98,11 @@ class DuringGame {
     });
   }
 
+  checkWinning({ pawns }) {
+    const winningIdsOfPools = [53, 54, 55, 56];
+    return pawns.every(({ position }) => winningIdsOfPools.includes(position.id));
+  }
+
   checkOtherPawnsInEndingPositions({ pawns }, nextPositionIndex) {
     if (nextPositionIndex >= 51) {
       const onTheSamePositions = pawns.filter(({ position }) => position.id === nextPositionIndex);
@@ -115,6 +121,8 @@ class DuringGame {
     pawn.position = choseMove.position;
 
     this.checkBeating(choseMove.position.id);
+    console.log(this.checkWinning(player));
+
     this.setNextPlayer();
   }
 }
