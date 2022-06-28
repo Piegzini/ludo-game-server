@@ -49,13 +49,13 @@ const handleConnection = (socket, io) => {
     }
   });
 
-  socket.on('ROLL_NUMBER', () => {
+  socket.on('ROLL_NUMBER', async () => {
     const { gameId } = socket;
     const game = Game.findGame(gameId);
     if (socket.playerId.valueOf() !== game.playerWithMove.valueOf()) return;
 
     game.rollNumber();
-    const availableMoves = game.getAvailableMoves();
+    const availableMoves = await game.getAvailableMoves();
     const roomId = getRoomId(gameId);
 
     socket.to(roomId).emit('UPDATE_GAME', game);
@@ -64,7 +64,7 @@ const handleConnection = (socket, io) => {
     io.to(socket.id).emit('UPDATE_GAME', gameWithAvailableMoves);
   });
 
-  socket.on('MOVE', ({ pawnId }) => {
+  socket.on('MOVE', async ({ pawnId }) => {
     const { gameId } = socket;
     const { playerId } = socket;
     const game = Game.findGame(gameId);
@@ -72,7 +72,7 @@ const handleConnection = (socket, io) => {
     const isPlayerWithMove = equalsId(playerId, game.playerWithMove);
     if (!isPlayerWithMove) return;
 
-    game.move(playerId, pawnId);
+    await game.move(playerId, pawnId);
 
     const roomId = getRoomId(gameId);
     io.to(roomId).emit('UPDATE_GAME', game);

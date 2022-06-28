@@ -1,5 +1,6 @@
 const { getPlayerAllPositions } = require('./helpers');
 const StaticRules = require('../services/StaticRules');
+const Redis = require('../databases/Redis');
 
 class Game extends StaticRules {
   static all = [];
@@ -16,7 +17,7 @@ class Game extends StaticRules {
     this.players = _players;
     this.playerWithMove = this.players[0]._id;
     this.emitUpdate = _emitUpdate;
-
+    this.availableMoves = [];
     Game.all.push(this);
     this.startTurnTime();
   }
@@ -45,11 +46,12 @@ class Game extends StaticRules {
     this.playerWithMove = this.players[nextPlayerIndex]._id;
   }
 
-  getAvailableMoves() {
+  async getAvailableMoves() {
     this.newTurn = false;
 
     const playerWithMove = this.players.find((player) => player._id.valueOf() === this.playerWithMove.valueOf());
-    const playerAllPositions = getPlayerAllPositions(playerWithMove.color);
+    let playerAllPositions = await Redis.get(`positions:${playerWithMove.color}`);
+    playerAllPositions = JSON.parse(playerAllPositions);
 
     let availableMoves = playerWithMove.pawns.map(({ id, position }) => {
       if (position === 'base') {
@@ -79,6 +81,7 @@ class Game extends StaticRules {
         this.emitUpdate(this);
       }, 600);
     }
+
     return availableMoves;
   }
 
@@ -111,10 +114,10 @@ class Game extends StaticRules {
     return false;
   }
 
-  move(playerId, pawnId) {
+  async move(playerId, pawnId) {
     this.newTurn = false;
     const player = this.players.find(({ _id }) => _id.valueOf() === playerId.valueOf());
-    const availableMoves = this.getAvailableMoves();
+    const availableMoves = await this.getAvailableMoves();
 
     const choseMove = availableMoves.find((availableMove) => availableMove?.id === pawnId);
     const pawn = player.pawns.find(({ id }) => id === pawnId);
