@@ -56,14 +56,6 @@ const getCurrentGamePlayers = async ({ players }) => {
   return playersDetails;
 };
 
-const addPlayerToGame = async (game, _playerId) => {
-  try {
-    await game.updateOne({ $push: { players: _playerId } });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 const startGame = async (_game) => {
   const game = _game;
   if (game.isDuring) return;

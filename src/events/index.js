@@ -1,28 +1,25 @@
-const {
-  findFreeGame,
-  addPlayerToGame,
-  getCurrentGamePlayers,
-  checkStartGame, findGame,
-} = require('../utils/Game.util');
+const GameService = require('../services/GameService');
+const PlayerService = require('../services/PlayerService');
 const { getRandomColorFromGame, getRoomId } = require('../utils/helpers');
-const { createPlayer, updatePlayer } = require('../utils/Player.util');
 const DuringGame = require('../utils/DuringGame');
+const { Game } = require('../models/game.model');
 
 const handleConnection = (socket, io) => {
+  const gameService = new GameService(Game);
   socket.on('CREATE_PLAYER', async ({ nick }) => {
-    const freeGame = await findFreeGame();
+    const freeGame = await gameService.findFreeGame();
 
     const color = await getRandomColorFromGame(freeGame);
-    const player = await createPlayer({ nick, color });
+    const player = await PlayerService.createPlayer({ nick, color });
 
-    await addPlayerToGame(freeGame, player._id);
+    await gameService.addPlayerToGame(freeGame, player._id);
 
     const user = {
       id: player._id, gameId: freeGame._id, color, nick,
     };
 
-    const updatedGame = await findGame(freeGame._id);
-    const players = await getCurrentGamePlayers(updatedGame);
+    const updatedGame = await gameService.findGame(freeGame._id);
+    const players = await gameService.getCurrentGamePlayers(updatedGame);
     socket.emit('JOIN_LOBBY', { user, players });
 
     socket.playerId = player._id;
@@ -35,11 +32,11 @@ const handleConnection = (socket, io) => {
   });
 
   socket.on('CHANGE_STATUS', async (values) => {
-    await updatePlayer(socket.playerId, values);
-    const game = await findGame(socket.gameId);
-    const players = await getCurrentGamePlayers(game);
+    await PlayerService.updatePlayer(socket.playerId, values);
+    const game = await gameService.findGame(socket.gameId);
+    const players = await gameService.getCurrentGamePlayers(game);
 
-    const isGameHasStarted = await checkStartGame(game);
+    const isGameHasStarted = await gameService.checkStartGame(game);
 
     const roomId = getRoomId(socket.gameId);
 
