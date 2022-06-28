@@ -6,6 +6,8 @@ class DuringGame {
 
   static turnTime = 10;
 
+  isDuring = true;
+
   #turnTimeOut;
 
   constructor({ _id }, _players, _emitUpdate) {
@@ -36,6 +38,7 @@ class DuringGame {
     const nextPlayerIndex = indexOfCurrentTurnPlayer + 1 >= this.players.length ? 0 : indexOfCurrentTurnPlayer + 1;
     this.playerWithMove = this.players[nextPlayerIndex]._id;
     this.hasPlayerRolledNumber = false;
+    this.rolledNumber = 0;
     this.newTurn = true;
     this.startTurnTime();
   }

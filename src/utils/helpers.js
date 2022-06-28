@@ -16,16 +16,16 @@ const getRandomColorFromGame = async (game) => {
 const getRoomId = (_id) => `${_id.valueOf()}`;
 
 const getStartedPosition = (color) => {
-  let positionNumber = 0;
+  let positionNumber = 1;
   switch (color) {
     case 'green':
-      positionNumber = 13;
+      positionNumber = 14;
       break;
     case 'gold':
-      positionNumber = 26;
+      positionNumber = 27;
       break;
     case 'royalBlue':
-      positionNumber = 39;
+      positionNumber = 40;
       break;
   }
   return positionNumber;
@@ -34,7 +34,7 @@ const getStartedPosition = (color) => {
 const getPlayerAllPositions = (color) => {
   const startedPositionNumber = getStartedPosition(color);
   const finishPositions = finishing.filter((position) => position.color === color);
-  return ([...positions.slice(startedPositionNumber, positions.length), ...positions.slice(0, startedPositionNumber), ...finishPositions]);
+  return ([...positions.slice(startedPositionNumber, positions.length), ...positions.slice(0, startedPositionNumber - 1), ...finishPositions]);
 };
 
 module.exports = {
