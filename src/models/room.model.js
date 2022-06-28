@@ -2,19 +2,11 @@ const mongoose = require('../db');
 
 const { Schema } = mongoose;
 
-const gameSchema = new Schema({
+const roomSchema = new Schema({
   players: [],
   isDuring: {
     type: Boolean,
     default: false,
-  },
-  turnTime: {
-    type: Number,
-    default: 40,
-  },
-  rolledNumber: {
-    type: Number,
-    default: 0,
   },
   availableColors: {
     type: Array,
@@ -22,6 +14,6 @@ const gameSchema = new Schema({
   },
 });
 
-const Game = mongoose.model('game', gameSchema);
+const Room = mongoose.model('room', roomSchema);
 
-module.exports = { Game, gameSchema };
+module.exports = { Room };

@@ -13,7 +13,7 @@ const getRandomColorFromGame = async (game) => {
   return color;
 };
 
-const getRoomId = (_id) => `${_id.valueOf()}`;
+const getRoomId = (_id) => `${_id}`;
 
 const getStartedPosition = (color) => {
   let positionNumber = 1;
@@ -37,6 +37,8 @@ const getPlayerAllPositions = (color) => {
   return ([...positions.slice(startedPositionNumber, positions.length), ...positions.slice(0, startedPositionNumber - 1), ...finishPositions]);
 };
 
+const equalsId = (firstId, secondId) => firstId.valueOf() === secondId.valueOf();
+
 module.exports = {
-  getRandomColorFromGame, getRoomId, getStartedPosition, getPlayerAllPositions,
+  getRandomColorFromGame, getRoomId, getStartedPosition, getPlayerAllPositions, equalsId,
 };

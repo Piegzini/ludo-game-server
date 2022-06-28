@@ -1,9 +1,9 @@
-const { getPlayer } = require('../utils/Player.util');
+const { getPlayer } = require('./PlayerService');
 
-class GameService {
+class RoomService {
   constructor(_model) {
     this.Model = _model;
-    this.minPlayersToStart = 2;
+    this.minPlayersToStart = 1;
   }
 
   async createRoom() {
@@ -16,7 +16,7 @@ class GameService {
     return game;
   }
 
-  async findFreeGame() {
+  async findFreeRoom() {
     let freeRooms;
     try {
       freeRooms = await this.Model.find({
@@ -37,7 +37,7 @@ class GameService {
     return await this.createRoom();
   }
 
-  async findGame(_gameId) {
+  async findRoom(_gameId) {
     try {
       return await this.Model.findById(_gameId);
     } catch (e) {
@@ -62,7 +62,7 @@ class GameService {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async getCurrentGamePlayers({ players }) {
+  async getCurrentRoomPlayers({ players }) {
     try {
       return await Promise.all(players.map(async (id) => await getPlayer(id)));
     } catch (e) {
@@ -72,7 +72,7 @@ class GameService {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async addPlayerToGame(_game, _playerId) {
+  async addPlayerToRoom(_game, _playerId) {
     try {
       await _game.updateOne({ $push: { players: _playerId } });
     } catch (error) {
@@ -81,7 +81,7 @@ class GameService {
   }
 
   async checkStartGame(_game) {
-    const players = await this.getCurrentGamePlayers(_game);
+    const players = await this.getCurrentRoomPlayers(_game);
 
     const readyPlayers = players.filter(({ isReady }) => isReady);
 
@@ -96,4 +96,4 @@ class GameService {
   }
 }
 
-module.exports = GameService;
+module.exports = RoomService;

@@ -1,26 +1,23 @@
-const { getStartedPosition, getPlayerAllPositions } = require('./helpers');
-const { positions, finishing } = require('../positions');
+const { getPlayerAllPositions } = require('./helpers');
+const StaticRules = require('../services/StaticRules');
 
-class DuringGame {
+class Game extends StaticRules {
   static all = [];
 
-  static turnTime = 10;
-
-  isDuring = true;
+  static findGame(_id) {
+    return Game.all.find((game) => game.id === _id);
+  }
 
   #turnTimeOut;
 
   constructor({ _id }, _players, _emitUpdate) {
-    this.id = _id;
+    super();
+    this.id = _id.valueOf();
     this.players = _players;
-    this.rolledNumber = null;
     this.playerWithMove = this.players[0]._id;
-    this.hasPlayerRolledNumber = false;
-    this.turnTime = DuringGame.turnTime;
-    this.newTurn = true;
     this.emitUpdate = _emitUpdate;
 
-    DuringGame.all.push(this);
+    Game.all.push(this);
     this.startTurnTime();
   }
 
@@ -28,29 +25,24 @@ class DuringGame {
     clearTimeout(this.#turnTimeOut);
 
     this.#turnTimeOut = setTimeout(() => {
-      this.setNextPlayer();
+      this.setNewTurn();
       this.emitUpdate(this);
-    }, DuringGame.turnTime * 1000);
+    }, this.turnTime * 1000);
   }
 
-  setNextPlayer() {
-    const indexOfCurrentTurnPlayer = this.players.findIndex(({ _id }) => _id.valueOf() === this.playerWithMove.valueOf());
-    const nextPlayerIndex = indexOfCurrentTurnPlayer + 1 >= this.players.length ? 0 : indexOfCurrentTurnPlayer + 1;
-    this.playerWithMove = this.players[nextPlayerIndex]._id;
+  setNewTurn() {
+    this.setNextPlayer();
+
     this.hasPlayerRolledNumber = false;
     this.rolledNumber = 0;
     this.newTurn = true;
     this.startTurnTime();
   }
 
-  rollNumber() {
-    const min = 1;
-    const max = 7;
-    if (this.hasPlayerRolledNumber) return;
-
-    this.rolledNumber = Math.floor(Math.random() * (max - min)) + min;
-    this.hasPlayerRolledNumber = true;
-    this.newTurn = false;
+  setNextPlayer() {
+    const indexOfCurrentTurnPlayer = this.players.findIndex(({ _id }) => _id.valueOf() === this.playerWithMove.valueOf());
+    const nextPlayerIndex = indexOfCurrentTurnPlayer + 1 >= this.players.length ? 0 : indexOfCurrentTurnPlayer + 1;
+    this.playerWithMove = this.players[nextPlayerIndex]._id;
   }
 
   getAvailableMoves() {
@@ -81,7 +73,12 @@ class DuringGame {
     // cleaner
     availableMoves = availableMoves.filter((move) => move !== false);
 
-    if (availableMoves.length === 0) this.setNextPlayer();
+    if (availableMoves.length === 0) {
+      setTimeout(() => {
+        this.setNewTurn();
+        this.emitUpdate(this);
+      }, 600);
+    }
     return availableMoves;
   }
 
@@ -124,10 +121,9 @@ class DuringGame {
     pawn.position = choseMove.position;
 
     this.checkBeating(choseMove.position.id);
-    console.log(this.checkWinning(player));
-
-    this.setNextPlayer();
+    this.checkWinning(player);
+    this.setNewTurn();
   }
 }
 
-module.exports = DuringGame;
+module.exports = Game;
