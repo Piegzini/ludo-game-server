@@ -2,7 +2,7 @@ const RoomService = require('../services/RoomService');
 const PlayerService = require('../services/PlayerService');
 const { getRandomColorFromGame, getRoomId, equalsId } = require('../utils/helpers');
 const { Room } = require('../models/room.model');
-const Game = require('../utils/Game');
+const Game = require('../services/Game');
 
 const handleConnection = (socket, io) => {
   const roomService = new RoomService(Room);
@@ -75,6 +75,7 @@ const handleConnection = (socket, io) => {
     await game.move(playerId, pawnId);
 
     const roomId = getRoomId(gameId);
+    console.log('dupcia');
     io.to(roomId).emit('UPDATE_GAME', game);
   });
 };

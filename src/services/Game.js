@@ -1,6 +1,6 @@
-const { getPlayerAllPositions } = require('./helpers');
-const StaticRules = require('../services/StaticRules');
+const StaticRules = require('./StaticRules');
 const Redis = require('../databases/Redis');
+const { equalsId } = require('../utils/helpers');
 
 class Game extends StaticRules {
   static all = [];
@@ -18,6 +18,7 @@ class Game extends StaticRules {
     this.playerWithMove = this.players[0]._id;
     this.emitUpdate = _emitUpdate;
     this.availableMoves = [];
+
     Game.all.push(this);
     this.startTurnTime();
   }
@@ -41,7 +42,7 @@ class Game extends StaticRules {
   }
 
   setNextPlayer() {
-    const indexOfCurrentTurnPlayer = this.players.findIndex(({ _id }) => _id.valueOf() === this.playerWithMove.valueOf());
+    const indexOfCurrentTurnPlayer = this.players.findIndex(({ _id }) => equalsId(_id, this.playerWithMove));
     const nextPlayerIndex = indexOfCurrentTurnPlayer + 1 >= this.players.length ? 0 : indexOfCurrentTurnPlayer + 1;
     this.playerWithMove = this.players[nextPlayerIndex]._id;
   }
@@ -49,7 +50,7 @@ class Game extends StaticRules {
   async getAvailableMoves() {
     this.newTurn = false;
 
-    const playerWithMove = this.players.find((player) => player._id.valueOf() === this.playerWithMove.valueOf());
+    const playerWithMove = this.players.find(({ _id }) => equalsId(_id, this.playerWithMove));
     let playerAllPositions = await Redis.get(`positions:${playerWithMove.color}`);
     playerAllPositions = JSON.parse(playerAllPositions);
 
@@ -86,7 +87,7 @@ class Game extends StaticRules {
   }
 
   checkBeating(positionId) {
-    const othersPlayers = this.players.filter((player) => player._id.valueOf() !== this.playerWithMove.valueOf());
+    const othersPlayers = this.players.filter(({ _id }) => !equalsId(_id, this.playerWithMove));
 
     othersPlayers.forEach((otherPlayer) => {
       const pawnOnTheSamePosition = otherPlayer.pawns.filter((pawn) => {
@@ -116,7 +117,7 @@ class Game extends StaticRules {
 
   async move(playerId, pawnId) {
     this.newTurn = false;
-    const player = this.players.find(({ _id }) => _id.valueOf() === playerId.valueOf());
+    const player = this.players.find(({ _id }) => equalsId(_id, playerId));
     const availableMoves = await this.getAvailableMoves();
 
     const choseMove = availableMoves.find((availableMove) => availableMove?.id === pawnId);
